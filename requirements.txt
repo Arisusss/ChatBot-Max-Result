@@ -1,0 +1,9 @@
+opencv-python
+torch
+torchvision
+Pillow
+numpy
+maxapi
+aiohttp
+python-dotenv
+watchdog
