@@ -2,4 +2,5 @@
 
 Используемая библиотека для работы с чат-ботами мессенджера MAX https://github.com/love-apples/maxapi?tab=readme-ov-file
 Библиотеки: см. requirements.txt
+
 Ввести в консоль для установки: py -m pip install название_библиотеки
