@@ -5,8 +5,9 @@ import FaceDetector as fd
 
 
 async def main3():
-    detector = fd.FaceDetector()
-    Thread(target=detector.run(), daemon=True).start()
+    loop = asyncio.get_running_loop()
+    detector = fd.FaceDetector(loop)
+    Thread(target=detector.run, daemon=True).start()
     await mainbot()
 
 if __name__ == "__main__":

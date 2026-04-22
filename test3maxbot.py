@@ -1,4 +1,4 @@
-#!Имопрты
+#!Импорты
 import os
 import asyncio
 import aiohttp
@@ -24,6 +24,8 @@ logging.basicConfig(level=logging.INFO)
 load_dotenv()
 TOKEN = os.getenv('TOKEN')
 folder = os.getenv('folder')
+last_intruder_time = 0
+last_alert_time = 0
 
 bot = Bot(TOKEN)
 dp = Dispatcher()
@@ -177,6 +179,11 @@ async def on_message_attachments(event: MessageCreated):
             logging.warning(f'Не удалось отправить: {e}')
     print("отправлено")"""
 async def send_camera_alert():
+    global last_alert_time
+    now = time.time()
+    if now - last_alert_time < 10:
+        return
+    last_alert_time = now
     for chat_id in get_all_chat_ids():
         try:
             await bot.send_message(
@@ -232,6 +239,10 @@ class FileHandler1(FileSystemEventHandler):
     def __init__(self, loop):
         self.loop = loop
     def on_created(self, event):
+        global last_intruder_time
+        now = time.time()
+        if now - last_intruder_time < 5:
+            return
         if not event.is_directory:
             letter = event.src_path
             print("Файл обнаружен", letter)
@@ -245,6 +256,7 @@ class FileHandler1(FileSystemEventHandler):
                     ),
                     self.loop
                 )
+            last_intruder_time = now
             print("Отправлено")
 """#Сохранение доверенных лиц через камеру
 @dp.message_created(Command('save'))
@@ -274,11 +286,17 @@ def watchdog(loop):
     return obs
 #обработчик
 def camera_blocked_handler():
-    loop = asyncio.get_running_loop()
-    loop.create_task(send_camera_alert())
+    try:
+        loop = asyncio.get_running_loop()
+    except RuntimeError:
+        loop = camera_blocked_handler._main_loop
+    asyncio.run_coroutine_threadsafe(send_camera_alert(), loop)
 #!main
 async def mainbot():
     loop = asyncio.get_running_loop()
+
+    camera_blocked_handler._main_loop = loop
+    
     obs = watchdog(loop)
     set_notifier(camera_blocked_handler)
     try:

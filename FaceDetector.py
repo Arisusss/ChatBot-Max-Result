@@ -21,7 +21,8 @@ from config import (
 from camera_notifier import notify_camera_blocked
 
 class FaceDetector:
-    def __init__(self):
+    def __init__(self, loop):
+        self.loop = loop
         # Инициализация камеры
         self.cap  = cv2.VideoCapture(camera_index)
         
